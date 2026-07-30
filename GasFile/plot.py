@@ -1,0 +1,19 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+atm1 = np.array([9.357623280265388e-14, 9.357623280265388e-14, 9.357623280265388e-14, 0.02673767748021008, 0.11309983816989941, 0.4626395458786055, 1.0947271928521327, 2.556662132599587, 4.537704390343901, 7.251830453034106])
+atm2 = np.array([9.357623098352714e-14, 9.357623098352714e-14, 9.357623098352714e-14, 9.357623098352714e-14, 9.357623098352714e-14, 9.357623098352714e-14, 9.357623098352714e-14, 0.021387334324600406, 0.11265710009635757, 0.168261785365819])
+
+
+field = np.array([1,2,3,4,5,6,7,8,9,10])
+
+plt.plot(field,atm1,label='1 atm')
+plt.plot(field,atm2,label='2 atm')
+
+
+plt.xlabel('Electric Field [kV/cm]')
+plt.ylabel('Townsend Coefficient [1/cm]')
+plt.title('Townsend Coefficients for Ar-CH4 92-8')
+plt.legend()
+
+plt.savefig('townscoeff.png')
