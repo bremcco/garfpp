@@ -9,13 +9,10 @@ import matplotlib.pyplot as plt
 import csv
 
 def write_csv(data, directory, filename):
-    # Ensure the directory exists
     os.makedirs(directory, exist_ok=True)
-    
-    # Create the full file path
+  
     file_path = os.path.join(directory, filename)
     
-    # Write the integers to the CSV file
     with open(file_path, mode = 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for item in data:
@@ -24,19 +21,19 @@ def write_csv(data, directory, filename):
 path = os.getenv('GARFIELD_INSTALL')
 
 trials = 1
-pressure = 760. * 1.5
-file_name = 'arch4955.csv'
-directory = '/afs/cern.ch/user/b/bmcconne/private/garfieldpp/gorg/3000_test'
+pressure = 760. * 6
+file_name = '5kVcm.csv'
+directory = '/afs/cern.ch/user/b/bmcconne/private/garfieldpp/colleff/6atm'
 
 
-# Load the field map.
+
 fm = ROOT.Garfield.ComponentAnsys123()
-fm.Initialise("2900/ELIST.lis", "2900/NLIST.lis", "2900/MPLIST.lis", "2900/PRNSOL.lis", "micron")
+fm.Initialise("5/ELIST.lis", "5/NLIST.lis", "5/MPLIST.lis", "5/PRNSOL.lis", "mm")
 fm.EnableMirrorPeriodicityX()
 fm.EnableMirrorPeriodicityY()
 fm.PrintRange() 
 
-# Dimensions of the GEM [cm]
+
 pitch = 0.014
 '''
 fieldView = ROOT.Garfield.ViewField()
@@ -59,7 +56,7 @@ input("press enter")
 
 '''
 # Setup the gas.
-gas = ROOT.Garfield.MediumMagboltz("ar", 90., "co2", 10.)
+gas = ROOT.Garfield.MediumMagboltz("ar", 92., "ch4", 8.)
 gas.SetTemperature(293.15)
 gas.SetPressure(pressure)
 gas.Initialise(True)
@@ -76,7 +73,7 @@ fm.PrintMaterials()
 # Assemble the sensor.
 sensor = ROOT.Garfield.Sensor()
 sensor.AddComponent(fm)
-sensor.SetArea(-2, -1, -2, 2,  1, 0.5)
+sensor.SetArea(-2, -1, -2, 2,  1, 1.8)
 
 aval = ROOT.Garfield.AvalancheMicroscopic()
 aval.SetSensor(sensor)
@@ -91,25 +88,36 @@ if plotDrift:
   aval.EnablePlotting(driftView)
   drift.EnablePlotting(driftView)
 
-# Count the total number of ions and the back-flowing ions.
+nTotal = 0
+nBF = 0
 ne= ctypes.c_int()
 ni= ctypes.c_int()
 
-ne_list=[]
+transported = []
 for i in range(trials):
-
-  # Randomize the initial position. 
+  # print i, '/', nEvents
+  
   x0 = -0.5 * pitch + ROOT.Garfield.RndmUniform() * pitch
   y0 = -0.5 * pitch + ROOT.Garfield.RndmUniform() * pitch
-  z0 = -1.8
+  z0 = 0.3
   t0 = 0.
   e0 = 0.07
   aval.AvalancheElectron(x0, y0, z0, t0, e0, 0., 0., 0.)
   aval.GetAvalancheSize(ne, ni)
-  ne_list.append(ne.value)
+  electrons = aval.GetElectrons()
 
-write_csv(ne_list,directory, file_name)
+  for electron in electrons:
+    
+    init_pos = electron.path.front()
+    fin_pos = electron.path.back()
 
+    if init_pos.z == 0.3:
+      if fin_pos.z > 0.003:
+        transported.append(0)
+      else:
+        transported.append(1)
+
+write_csv(transported,directory, file_name)
 '''
 cD = ROOT.TCanvas('cD', '', 600, 600)
 meshView = ROOT.Garfield.ViewFEMesh()
@@ -117,7 +125,7 @@ meshView.SetComponent(fm)
 plotMesh = True 
 if plotDrift:
   if plotMesh:
-    meshView.SetArea(-5 * pitch, -0.3, 5 * pitch, 0.4)
+    meshView.SetArea(-2 * pitch, -1, 2 * pitch, 1)
     meshView.SetCanvas(cD)
     # x-z projection.
     meshView.SetPlane(0, -1, 0, 0, 0, 0)
@@ -130,9 +138,10 @@ if plotDrift:
   else:
     driftView.SetCanvas(cD)
     driftView.SetPlane(0, -1, 0, 0, 0, 0)
-    driftView.SetArea(-2 * pitch, -0.3, 2 * pitch, 0.4)
+    driftView.SetArea(-2 * pitch, -1, 2 * pitch, 1)
     driftView.Plot(True)
 cD.Update()
 cD.SaveAs('avalanche_test.png')
 '''
+
 

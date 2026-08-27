@@ -24,20 +24,20 @@ def write_csv(data, directory, filename):
 path = os.getenv('GARFIELD_INSTALL')
 
 trials = 1
-pressure = 760. * 1.5
-file_name = 'arch4955.csv'
-directory = '/afs/cern.ch/user/b/bmcconne/private/garfieldpp/gorg/3000_test'
+pressure = 760. * 3.25685
+file_name = '3626.csv'
+directory = '/afs/cern.ch/user/b/bmcconne/private/garfieldpp/thgem/3626'
 
 
 # Load the field map.
 fm = ROOT.Garfield.ComponentAnsys123()
-fm.Initialise("2900/ELIST.lis", "2900/NLIST.lis", "2900/MPLIST.lis", "2900/PRNSOL.lis", "micron")
+fm.Initialise("thgem/3626/ELIST.lis", "thgem/3626/NLIST.lis", "thgem/3626/MPLIST.lis", "thgem/3626/PRNSOL.lis", "mm")
 fm.EnableMirrorPeriodicityX()
 fm.EnableMirrorPeriodicityY()
 fm.PrintRange() 
 
 # Dimensions of the GEM [cm]
-pitch = 0.014
+pitch = 0.8
 '''
 fieldView = ROOT.Garfield.ViewField()
 cF = ROOT.TCanvas('cF', '', 600, 600)
@@ -46,20 +46,21 @@ fieldView.SetComponent(fm)
 # Set the viewing plane (xz plane).
 fieldView.SetPlaneXZ()
 # Set the plot limits in the current viewing plane.
-fieldView.SetArea(-1, -1.9, 1, 1)
-fieldView.SetVoltageRange(-3600., 0000.)
+fieldView.SetArea(-1, -0.1, 1, 0.1)
+fieldView.SetVoltageRange(-3000., 3000.)
 
 cF.SetLeftMargin(0.16)
-fieldView.Plot("v", "colz")
+fieldView.PlotContour()
+#fieldView.Plot("v", "colz")
 cF.Update()
 cF.Draw()
 cF.SaveAs("v.png")
 
 input("press enter")
-
 '''
+
 # Setup the gas.
-gas = ROOT.Garfield.MediumMagboltz("ar", 90., "co2", 10.)
+gas = ROOT.Garfield.MediumMagboltz("ar", 100.)
 gas.SetTemperature(293.15)
 gas.SetPressure(pressure)
 gas.Initialise(True)
@@ -76,7 +77,7 @@ fm.PrintMaterials()
 # Assemble the sensor.
 sensor = ROOT.Garfield.Sensor()
 sensor.AddComponent(fm)
-sensor.SetArea(-2, -1, -2, 2,  1, 0.5)
+sensor.SetArea(-2, -1, -0.2, 2,  1, 2)
 
 aval = ROOT.Garfield.AvalancheMicroscopic()
 aval.SetSensor(sensor)
@@ -101,7 +102,7 @@ for i in range(trials):
   # Randomize the initial position. 
   x0 = -0.5 * pitch + ROOT.Garfield.RndmUniform() * pitch
   y0 = -0.5 * pitch + ROOT.Garfield.RndmUniform() * pitch
-  z0 = -1.8
+  z0 = 1.0
   t0 = 0.
   e0 = 0.07
   aval.AvalancheElectron(x0, y0, z0, t0, e0, 0., 0., 0.)
@@ -109,8 +110,8 @@ for i in range(trials):
   ne_list.append(ne.value)
 
 write_csv(ne_list,directory, file_name)
-
 '''
+
 cD = ROOT.TCanvas('cD', '', 600, 600)
 meshView = ROOT.Garfield.ViewFEMesh()
 meshView.SetComponent(fm)
