@@ -1,0 +1,15 @@
+executable  = run_goat_mc.sh
+arguments   = $(ClusterId)_$(ProcId) 1
+
+should_transfer_files   = YES
+transfer_input_files    = build/gain_MC, build/GOAT_ar_90_co2_10_1atm_0p5T.gas, build/IonMobility_Ar+_Ar.txt
+when_to_transfer_output = ON_EXIT
+
+output = logs/goat.$(ClusterId).$(ProcId).out
+error  = logs/goat.$(ClusterId).$(ProcId).err
+log    = logs/goat.$(ClusterId).log
+
++JobFlavour = "workday"
+request_cpus = 1
+
+queue 1000

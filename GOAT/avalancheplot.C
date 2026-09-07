@@ -242,11 +242,11 @@ int main() {
     canvas.Update();
 
     canvas.SaveAs(
-        "avalanche_with_geometry.png"
+        "avalanche.png"
     );
 
     std::cout
-        << "Saved plot to avalanche_with_geometry.png"
+        << "Saved plot"
         << std::endl;
 
 

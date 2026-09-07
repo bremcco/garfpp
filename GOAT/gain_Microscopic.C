@@ -38,13 +38,13 @@ void write_csv(const std::vector<int>& data,
 int main() {
 
     const std::string directory =
-        "/afs/cern.ch/user/b/bmcconne/private/garfieldpp/alice/goat_data/1";
+        "/afs/cern.ch/user/b/bmcconne/private/data/goat/1bar";
 
     const std::string file_name = "1150.csv";
 
     const double pressure = 760.0 * 1.0;
 
-    const int trials = 1;
+    const int trials = 5;
 
     const bool iroc = true;
 
@@ -193,14 +193,13 @@ int main() {
         int ni = 0;
 
         aval.GetAvalancheSize(ne,ni);
+        write_csv(
+            std::vector<int>{ne},
+            directory,
+            file_name
+        );
         ne_list.push_back(ne);
     }
 
-    write_csv(
-        ne_list,
-        directory,
-        file_name
-    );
-    
     return 0;
 }

@@ -8,8 +8,7 @@ endif()
 add_executable(generate generate.C)
 target_link_libraries(generate Garfield::Garfield)
 
-add_executable(penning penning.C)
-target_link_libraries(penning Garfield::Garfield)
+
 
 
 
